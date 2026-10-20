@@ -1,0 +1,253 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 40,
+        "title": "Multi-tracker support for engineering skills",
+        "url": "https://github.com/northwind/skills/issues/40",
+        "body": "## Destination\n\nA spec that lets every engineering skill read and write the same map across GitHub, Linear, and local markdown from one repo, ready to hand to /to-tickets.\n\n## Notes\n\nConsult domain-modeling for the Tracker / Map / Ticket vocabulary. Keep the spec tracker-agnostic; name Linear specifics only where its API forces it.\n\n## Decisions so far\n\n<!-- the index: one line per closed ticket -->\n\n- [What do Linear's sub-issue and blocking APIs actually expose over GraphQL?](https://github.com/northwind/skills/issues/41): sub-issues yes, blocking via issue relations of type `blocks`; no server-side frontier filter, so it is computed client-side.\n- [Which tracker is canonical when both GitHub and Linear are configured?](https://github.com/northwind/skills/issues/42): GitHub stays canonical for the map; Linear mirrors tickets one way and never writes back.\n\n## Not yet specified\n\n- How the mirror recovers when someone edits a mirrored ticket directly in Linear\n- Whether /wayfinder reads the tracker doc every session or caches the choice in the map's Notes\n- What contributors with a GitHub account but no Linear seat can see of a mirrored map\n\n## Out of scope\n\n- [Export a month of Linear issues to see how teams actually use cycles](https://github.com/northwind/skills/issues/51): cycle analytics belong to a reporting effort, not this spec.\n",
+        "subIssues": {
+          "nodes": [
+            {
+              "number": 41,
+              "title": "What do Linear's sub-issue and blocking APIs actually expose over GraphQL?",
+              "url": "https://github.com/northwind/skills/issues/41",
+              "body": "## Question\n\nBefore we decide how a map lives in Linear, we need to know whether Linear can express parent/child tickets and blocking natively, and whether the frontier (open, unblocked, unassigned) can be queried server-side or has to be computed.\n",
+              "state": "CLOSED",
+              "stateReason": "COMPLETED",
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:research"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 42,
+              "title": "Which tracker is canonical when both GitHub and Linear are configured?",
+              "url": "https://github.com/northwind/skills/issues/42",
+              "body": "## Question\n\nA repo can name two trackers. When the map and its tickets exist in both, which one do skills read as truth, and which one is a mirror?\n",
+              "state": "CLOSED",
+              "stateReason": "COMPLETED",
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:grilling"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 44,
+              "title": "Should a ticket's type live in a label, a custom field, or the body?",
+              "url": "https://github.com/northwind/skills/issues/44",
+              "body": "## Question\n\nGitHub carries `wayfinder:<type>` as a label. Linear has labels and custom fields. Pick one representation that survives the mirror and that a human can still filter on in each UI.\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:grilling"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": [
+                  {
+                    "login": "mrivera"
+                  }
+                ]
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 45,
+              "title": "What does the tracker doc look like when it names two trackers?",
+              "url": "https://github.com/northwind/skills/issues/45",
+              "body": "## Question\n\nDraft `docs/agents/issue-tracker.md` for a repo with GitHub as canonical and Linear as a mirror, so we can react to how much of \"Wayfinding operations\" has to fork per tracker.\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:prototype"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": [
+                  {
+                    "title": "Which tracker is canonical when both GitHub and Linear are configured?",
+                    "url": "https://github.com/northwind/skills/issues/42",
+                    "state": "CLOSED"
+                  }
+                ]
+              }
+            },
+            {
+              "number": 46,
+              "title": "Provision a Linear sandbox workspace with API access for the skills bot",
+              "url": "https://github.com/northwind/skills/issues/46",
+              "body": "## Question\n\nWe cannot judge the mirror without a workspace to write into. Create a sandbox team, an API key scoped to it, and record where the key lives.\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:task"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 47,
+              "title": "How do GitLab's work-item hierarchies map onto parent/child tickets?",
+              "url": "https://github.com/northwind/skills/issues/47",
+              "body": "## Question\n\nGitLab is the next most requested tracker. Do epics and work-item children give us the same map/ticket shape, and does GitLab have native blocking on the free tier?\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:research"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 48,
+              "title": "How should a skill resolve an issue reference that exists in both trackers?",
+              "url": "https://github.com/northwind/skills/issues/48",
+              "body": "## Question\n\nWhen a human writes \"the caching ticket\" or pastes a Linear URL into a GitHub-canonical map, which issue does the skill load, and what does it say back?\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:grilling"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": [
+                  {
+                    "title": "Should a ticket's type live in a label, a custom field, or the body?",
+                    "url": "https://github.com/northwind/skills/issues/44",
+                    "state": "OPEN"
+                  },
+                  {
+                    "title": "What does the tracker doc look like when it names two trackers?",
+                    "url": "https://github.com/northwind/skills/issues/45",
+                    "state": "OPEN"
+                  }
+                ]
+              }
+            },
+            {
+              "number": 49,
+              "title": "What does /triage print when it finds the same bug filed twice across trackers?",
+              "url": "https://github.com/northwind/skills/issues/49",
+              "body": "## Question\n\nMock the triage output for a duplicate that exists as a GitHub issue and a Linear issue with different titles, so we can see whether \"refer by name\" still reads cleanly.\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:prototype"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": [
+                  {
+                    "title": "How should a skill resolve an issue reference that exists in both trackers?",
+                    "url": "https://github.com/northwind/skills/issues/48",
+                    "state": "OPEN"
+                  }
+                ]
+              }
+            },
+            {
+              "number": 50,
+              "title": "Do we migrate existing GitHub-only maps, or only chart new ones dual-tracker?",
+              "url": "https://github.com/northwind/skills/issues/50",
+              "body": "## Question\n\nThere are a dozen live maps in GitHub today. Decide whether the dual-tracker spec applies to them retroactively or only to maps charted after it ships.\n",
+              "state": "OPEN",
+              "stateReason": null,
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:grilling"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            },
+            {
+              "number": 51,
+              "title": "Export a month of Linear issues to see how teams actually use cycles",
+              "url": "https://github.com/northwind/skills/issues/51",
+              "body": "## Question\n\nPull thirty days of Linear issues with cycle membership so we can see whether cycles should map onto anything in Wayfinder.\n",
+              "state": "CLOSED",
+              "stateReason": "NOT_PLANNED",
+              "labels": {
+                "nodes": [
+                  {
+                    "name": "wayfinder:task"
+                  }
+                ]
+              },
+              "assignees": {
+                "nodes": []
+              },
+              "blockedBy": {
+                "nodes": []
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
