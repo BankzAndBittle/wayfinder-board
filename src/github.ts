@@ -50,6 +50,8 @@ export function fromGraphQL(res: GraphQLResponse): RawMap {
     title: map.title,
     url: map.url,
     body: map.body,
+    impl: [], // ponytail: slices live as sub-issues of the spec issue on GitHub; wire them when a GitHub map reaches that stage
+    spec: null,
     // ponytail: first 100 children only; paginate subIssues if a map ever outgrows that.
     tickets: map.subIssues.nodes.map((n) => ({
       id: `#${n.number}`,

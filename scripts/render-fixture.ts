@@ -1,7 +1,8 @@
 // Render the fixture (and an edge-case variant) to out/ without touching the network.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { render } from '../src/html.js';
-import { derive } from '../src/model.js';
+import { local } from '../src/local.js';
+import { type BoardModel, derive } from '../src/model.js';
 import { raw } from '../test/fixture.js';
 
 mkdirSync('out', { recursive: true });
@@ -20,4 +21,8 @@ const t1 = edge.tickets.find((t) => t.id === '#50');
 if (t1) t1.body = 'Some notes but no question heading.';
 for (const t of edge.tickets) if (t.id === '#44') Object.assign(t, { claimed: false, assignee: null });
 writeFileSync('out/edge.html', render(derive(edge)));
-console.log('Wrote out/board.html, out/edge.html');
+const second = { ...derive(edge), title: 'Tracker-neutral map spec', url: 'https://github.com/o/r/issues/99' };
+const locals = await Promise.all(['signing', 'quoting'].map(async (e) => derive(await local(`fixtures/local/${e}`).load())));
+writeFileSync('out/all.html', render([derive(raw()), second, ...locals]));
+writeFileSync('out/impl.html', render(locals[0] as BoardModel));
+console.log('Wrote out/board.html, out/edge.html, out/all.html, out/impl.html');

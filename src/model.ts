@@ -17,6 +17,9 @@ export interface RawMap {
   url: string;
   body: string;
   tickets: RawTicket[];
+  /** Implementation slices split from the finished map (`<effort>-impl/issues/` locally); `type` carries the triage label. */
+  impl: RawTicket[];
+  spec: string | null; // url of the locked spec, when the tracker can see one
 }
 
 export interface TrackerAdapter {
@@ -25,7 +28,9 @@ export interface TrackerAdapter {
   writeMapBody(body: string): Promise<void>;
 }
 
-export type TicketType = 'research' | 'prototype' | 'grilling' | 'task' | 'untyped';
+export type TicketType = 'research' | 'prototype' | 'grilling' | 'task' | 'untyped' | 'impl';
+/** Where an effort is: still deciding, decided but not yet sliced, slices in flight, or every slice done. */
+export type Stage = 'charting' | 'needsTickets' | 'implementing' | 'done';
 export type TicketState = 'frontier' | 'blocked' | 'inSession' | 'decided' | 'outOfScope';
 
 export interface Ticket {
@@ -45,11 +50,19 @@ export interface BoardModel {
   title: string;
   url: string;
   destination: string;
+  summary: string; // `## What it does`: the plain-language headline; the board falls back to the destination
   notes: string;
   fog: string[];
   outOfScope: string[];
   tickets: Ticket[];
+  stage: Stage;
+  impl: Ticket[]; // implementation slices; `hitl` means labelled ready-for-human
+  spec: string | null;
 }
+
+const undecided = (t: Ticket) => t.state !== 'decided' && t.state !== 'outOfScope';
+/** A map still has somewhere to go: fog left, or a ticket that isn't decided or ruled out. */
+export const isOpen = (m: Pick<BoardModel, 'fog' | 'tickets'>) => m.fog.length > 0 || m.tickets.some(undecided);
 
 const TYPES = new Set(['research', 'prototype', 'grilling', 'task']);
 
@@ -95,36 +108,47 @@ export function mentions(line: string, t: Pick<RawTicket, 'url' | 'id'>): boolea
 export function derive(raw: RawMap): BoardModel {
   const decisions = items(section(raw.body, 'Decisions so far'));
   const outOfScope = items(section(raw.body, 'Out of scope'));
-  const tickets = raw.tickets.map((t): Ticket => {
-    const type = (t.type && TYPES.has(t.type) ? t.type : 'untyped') as TicketType;
+  const ticket = (t: RawTicket, impl: boolean): Ticket => {
+    const type: TicketType = impl ? 'impl' : t.type && TYPES.has(t.type) ? (t.type as TicketType) : 'untyped';
     const waitingOn = t.blockedBy.filter((b) => b.open).map((b) => b.title);
     let state: TicketState;
     // ponytail: a closed ticket listed in neither section still counts as decided; the map index lags the tracker.
-    if (!t.open) state = outOfScope.some((l) => mentions(l, t)) && !decisions.some((l) => mentions(l, t)) ? 'outOfScope' : 'decided';
+    if (!t.open) state = !impl && outOfScope.some((l) => mentions(l, t)) && !decisions.some((l) => mentions(l, t)) ? 'outOfScope' : 'decided';
     else if (t.claimed) state = 'inSession';
     else if (waitingOn.length) state = 'blocked';
     else state = 'frontier';
-    const question = section(t.body, 'Question');
+    // Slices from /to-tickets carry "## Goal" or a bold "What to build:" lead instead of a question.
+    const question = section(t.body, 'Question') || section(t.body, 'Goal') || /\*\*What to build:\*\*\s*([^\n]+)/.exec(t.body)?.[1]?.trim() || '';
     return {
       id: t.id,
       url: t.url,
       title: t.title,
       type,
-      hitl: type !== 'research',
+      hitl: impl ? t.type === 'ready-for-human' : type !== 'research',
       state,
       assignee: t.assignee,
       blockedBy: t.blockedBy.map((b) => b.url),
       waitingOn,
       question: question || null,
     };
-  });
+  };
+  const tickets = raw.tickets.map((t) => ticket(t, false));
+  const impl = raw.impl.map((t) => ticket(t, true));
+  const fog = items(section(raw.body, 'Not yet specified'));
+  // `Status: complete` near the top of the map says the destination is reached even when fog outlives it.
+  const complete = /^\**status:?\**:?\s*complete/im.test(raw.body) || !isOpen({ fog, tickets });
+  const stage: Stage = impl.length ? (impl.some(undecided) ? 'implementing' : 'done') : complete ? 'needsTickets' : 'charting';
   return {
-    title: raw.title,
+    title: raw.title.replace(/\s*[—–-]\s*Wayfinder Map$/i, ''),
     url: raw.url,
     destination: section(raw.body, 'Destination'),
+    summary: section(raw.body, 'What it does'),
     notes: section(raw.body, 'Notes'),
-    fog: items(section(raw.body, 'Not yet specified')),
+    fog,
     outOfScope,
     tickets,
+    stage,
+    impl,
+    spec: raw.spec,
   };
 }
