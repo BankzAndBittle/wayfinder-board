@@ -8,8 +8,11 @@ const LABEL: Record<string, string> = { frontier: 'frontier', blocked: 'blocked'
 // Mermaid labels choke on quotes and brackets; entity codes keep the title readable.
 const label = (s: string) => s.replace(/"/g, '#quot;').replace(/[[\]{}()<>]/g, (c) => `#${c.charCodeAt(0)};`);
 
+/** The decision graph while charting; the slice graph once the spec is split. */
+const graphed = (m: BoardModel) => (m.impl.length ? m.impl : m.tickets);
+
 export function toMermaid(m: BoardModel): string {
-  const live = m.tickets.filter((t) => t.state !== 'outOfScope');
+  const live = graphed(m).filter((t) => t.state !== 'outOfScope');
   const key = new Map(live.map((t, i) => [t.url, `t${i}`]));
   const lines = ['flowchart LR'];
   for (const t of live) {
@@ -29,9 +32,11 @@ export function toMermaid(m: BoardModel): string {
 
 /** Put the diagram between the markers, appending the block if the markers are absent. */
 export function upsert(body: string, m: BoardModel): string {
-  const open = m.tickets.filter((t) => t.state !== 'decided' && t.state !== 'outOfScope').length;
-  const decided = m.tickets.filter((t) => t.state === 'decided').length;
-  const block = `${START}\n## Board\n\n${decided} decided · ${open} open · ${m.fog.length} in fog\n\n\`\`\`mermaid\n${toMermaid(m)}\n\`\`\`\n${END}`;
+  const ts = graphed(m);
+  const open = ts.filter((t) => t.state !== 'decided' && t.state !== 'outOfScope').length;
+  const decided = ts.filter((t) => t.state === 'decided').length;
+  const line = m.impl.length ? `${decided} of ${ts.length} slices done` : `${decided} decided · ${open} open · ${m.fog.length} in fog`;
+  const block = `${START}\n## Board\n\n${line}\n\n\`\`\`mermaid\n${toMermaid(m)}\n\`\`\`\n${END}`;
   const i = body.indexOf(START);
   const j = body.indexOf(END, i);
   if (i >= 0 && j >= 0) return body.slice(0, i) + block + body.slice(j + END.length);

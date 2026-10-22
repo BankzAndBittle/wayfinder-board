@@ -1,0 +1,3 @@
+# Spec: Fireblocks signing
+
+Locked.

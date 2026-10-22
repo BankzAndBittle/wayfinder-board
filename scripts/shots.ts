@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
-const pages = process.argv.slice(2).length ? process.argv.slice(2) : ['board', 'board#map', 'edge'];
+const pages = process.argv.slice(2).length ? process.argv.slice(2) : ['board', 'board#map', 'edge', 'all', 'impl', 'impl#map'];
 mkdirSync('out/shots', { recursive: true });
 const browser = await chromium.launch();
 for (const [w, h] of [[1440, 900], [390, 844]] as const) {
