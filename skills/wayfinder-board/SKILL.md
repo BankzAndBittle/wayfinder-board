@@ -16,10 +16,12 @@ Locate the tracker the same way `/wayfinder` does: read `CLAUDE.md` (else `AGENT
 
 If the user gave a map number or name instead of a URL/path, resolve it with the tracker doc's conventions (on GitHub: `gh issue list --label wayfinder:map --state all --json number,title,url`). If several maps match, list them **by title** and ask which one.
 
+If the user asks for **all maps**, every active map, or what is in flight across projects, pass every open map (GitHub: `--state open`; local: pass the repo directory, which expands to every open `.scratch/*/map.md`) as positionals in one run. The page then opens on an all-maps board: an effort strip grouped by stage (charting, needs tickets, implementing), then the in-session and frontier cards, with a tab per map. A finished map's tab shows its implementation slices from `.scratch/<effort>-impl/issues/`.
+
 ## 2. Run
 
 ```sh
-wayfinder-board <map-url-or-path> --html out/board.html --open --post
+wayfinder-board <map-url-or-path>... --html out/board.html --open --post
 ```
 
 If `wayfinder-board` is not on PATH, use `npx -y wayfinder-board` in its place.
@@ -28,4 +30,4 @@ If `wayfinder-board` is not on PATH, use `npx -y wayfinder-board` in its place.
 
 ## 3. Report
 
-One line: where the HTML was written, and the counts it printed. Refer to the map by its title, never by a bare `#number`. If `gh` is not authenticated, tell the user to run `! gh auth login`.
+One line: where the HTML was written, and the counts it printed. With several maps, add one line per effort naming its stage. Refer to the map by its title, never by a bare `#number`. If `gh` is not authenticated, tell the user to run `! gh auth login`.
